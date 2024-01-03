@@ -24,7 +24,7 @@
 <body id="installer" class="installer">
     <div class="container-fluid">
         <div class="row">
-            <div id="installer-step1" class="installer-main col-sm-8 col-sm-offset-2 col-md-8 col-md-offset-2">
+            <div id="installer-step1" class="installer-main col-sm-8 col-sm-offset-2 col-md-8 offset-md-2">
 
                 <div id="logo"><a href="#">Koha</a></div>
 
@@ -83,10 +83,10 @@
                                 </ol>
                             </div>
 
-                            <p>Some Perl modules are missing. <span class="label label-danger">Important: </span>Required modules must be installed before you may continue.<br />
+                            <p>Some Perl modules are missing. <span class="badge text-bg-danger">Important: </span>Required modules must be installed before you may continue.<br />
                             <ul>
                                 [% FOREACH missing_module IN missing_modules %]
-                                    <li><strong>[% missing_module.name | html %]</strong> [% IF ( missing_module.require ) %]<span class="label label-danger">Required</span>[% END %]
+                                    <li><strong>[% missing_module.name | html %]</strong> [% IF ( missing_module.require ) %]<span class="badge text-bg-danger">Required</span>[% END %]
                                         <br /> Version: [% missing_module.min_version | html %]
                                     </li>
                                 [% END %]
@@ -107,10 +107,10 @@
                                 </ol>
                             </div>
 
-                            <p>Some Perl modules require upgrade. <span class="label label-danger">Important: </span>Required modules must be installed at the correct version before you may continue.<br />
+                            <p>Some Perl modules require upgrade. <span class="badge text-bg-danger">Important: </span>Required modules must be installed at the correct version before you may continue.<br />
                             <ul>
                                 [% FOREACH upgrade_module IN upgrade_modules %]
-                                    <li><strong>[% upgrade_module.name | html %]</strong> [% IF ( upgrade_module.require ) %]<span class="label label-danger">Required</span>[% END %]
+                                    <li><strong>[% upgrade_module.name | html %]</strong> [% IF ( upgrade_module.require ) %]<span class="badge text-bg-danger">Required</span>[% END %]
                                         <br /> Installed version: [% upgrade_module.version | html %]
                                         <br /> Minimum version: [% upgrade_module.min_version | html %]
                                         <br /> Maximum version: [% upgrade_module.max_version | html %]
