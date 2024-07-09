@@ -12,6 +12,7 @@
     [% t("Koha") | html %]
 [% END %]</title>
 [% INCLUDE 'doc-head-close.inc' %]
+[% PROCESS 'html_helpers/tables/aside/filters.inc' %]
 [% Asset.css("lib/jquery/plugins/treetable/stylesheets/jquery.treetable.css") | $raw %]
 </head>
 
@@ -89,20 +90,6 @@
     <h3>All available funds</h3>
 
     <div id="BudgetsAndFunds">
-        <div class="toolbar btn-toolbar">
-            <span class="actions">
-                <a href="#" id="expand_all">Expand all</a> |
-                <a href="#" id="collapse_all">Collapse all</a> |
-                <a href="#" id="hide_inactive">Hide inactive budgets</a> |
-                <a href="#" id="show_inactive">Show inactive budgets</a> |
-                <select id="library-filter">
-                    <option value="">Filter by library</option>
-                    [% FOREACH b IN Branches.all %]
-                        <option value="[% b.branchname | html %]">[% b.branchname | html %]</option>
-                    [% END %]
-                </select>
-            </span>
-        </div>
             <table id="accounts">
 
                 <thead>
@@ -211,6 +198,22 @@
 
 <div class="col-md-2 order-sm-2 order-md-1">
     <aside>
+        [% WRAPPER filter_search form_title="Filter funds" search_label="" search_clear_visible="1" %]
+            [% WRAPPER filter_select id="funds_collapse" label="Show/hide funds" %]
+                <option value="show">Show all funds</options>
+                <option value="hide">Hide all funds</options>
+            [% END %]
+            [% WRAPPER filter_select id="inactive_budgets_collapse" label="Show/hide inactive budgets" %]
+                <option value="hide">Hide inactive budgets</option>
+                <option value="show">Show inactive budgets</option>
+            [% END %]
+            [% WRAPPER filter_select id="brach_filter" label="Filter by library" %]
+            <option value=""></option>
+                [% FOREACH b IN Branches.all %]
+                    <option value="[% b.branchname | html %]">[% b.branchname | html %]</option>
+                [% END %]
+            [% END %]
+        [% END %]
         [% INCLUDE 'acquisitions-menu.inc' %]
     </aside>
 </div>
@@ -271,29 +274,30 @@
             $(oTable).treetable({
                 expandable: true
             });
-            $(oTable).treetable('expandAll');
-            $("#expand_all").click(function(e){
-                e.preventDefault();
-                $(oTable).treetable('expandAll');
-            });
-            $("#collapse_all").click(function(e){
-                e.preventDefault();
-                $(oTable).treetable('collapseAll');
-            });
 
-            $("#hide_inactive").click(function(e){
-                e.preventDefault();
-                oTable.fnFilter( 1, 0 ); // Show only active=1
+            $("#funds_collapse").change(function(){
+                if($(this).val() == "show") $(oTable).treetable('expandAll');
+                else if($(this).val() == "hide") $(oTable).treetable('collapseAll');
             });
-            $("#show_inactive").click(function(e){
-                e.preventDefault();
-                oTable.fnFilter( '', 0 );
-            });
-            $("#hide_inactive").click();
+            $("#funds_collapse").val("show").change();
 
-            $("#library-filter").change(function(){
+            $("#inactive_budgets_collapse").change(function(){
+                if($(this).val() == "show") oTable.fnFilter( '', 0 );
+                else if($(this).val() == "hide") oTable.fnFilter( 1, 0 ); // Show only active=1
+            });
+            $("#inactive_budgets_collapse").val("hide").change();
+
+            $("#brach_filter").change(function(){
                 $("#accounts").DataTable().search(this.value);
                 $("#accounts").DataTable().draw();
+            });
+            $("#brach_filter").val("").change();
+
+            $("#search_clear").on("click", function() {
+                $("#search_input").val("").change(); // reset search box
+                $("#funds_collapse").val("show").change(); // reset funds collapse
+                $("#inactive_budgets_collapse").val("hide").change(); // reset inactive budgets collapse
+                $("#brach_filter").val("").change();
             });
 
         });
