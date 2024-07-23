@@ -394,17 +394,17 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 erm_agreements
+=head2 erm_agreement_vendors
 
 Type: has_many
 
-Related object: L<Koha::Schema::Result::ErmAgreement>
+Related object: L<Koha::Schema::Result::ErmAgreementVendor>
 
 =cut
 
 __PACKAGE__->has_many(
-  "erm_agreements",
-  "Koha::Schema::Result::ErmAgreement",
+  "erm_agreement_vendors",
+  "Koha::Schema::Result::ErmAgreementVendor",
   { "foreign.vendor_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
@@ -510,8 +510,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2023-06-30 09:54:35
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:xjeOqpcdN3Kb1wmLGDjzLg
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-07-22 15:05:00
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Unqh+qhXwzR8rLnERJSjcg
 
 __PACKAGE__->add_columns(
     '+active' => { is_boolean => 1 },

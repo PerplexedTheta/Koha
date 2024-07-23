@@ -31,14 +31,6 @@ __PACKAGE__->table("erm_agreements");
 
 primary key
 
-=head2 vendor_id
-
-  data_type: 'integer'
-  is_foreign_key: 1
-  is_nullable: 1
-
-foreign key to aqbooksellers
-
 =head2 name
 
   data_type: 'varchar'
@@ -99,8 +91,6 @@ info about the license
 __PACKAGE__->add_columns(
   "agreement_id",
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
-  "vendor_id",
-  { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
   "name",
   { data_type => "varchar", is_nullable => 0, size => 255 },
   "description",
@@ -191,6 +181,21 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 erm_agreement_vendors
+
+Type: has_many
+
+Related object: L<Koha::Schema::Result::ErmAgreementVendor>
+
+=cut
+
+__PACKAGE__->has_many(
+  "erm_agreement_vendors",
+  "Koha::Schema::Result::ErmAgreementVendor",
+  { "foreign.agreement_id" => "self.agreement_id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 erm_documents
 
 Type: has_many
@@ -236,26 +241,6 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 vendor
-
-Type: belongs_to
-
-Related object: L<Koha::Schema::Result::Aqbookseller>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "vendor",
-  "Koha::Schema::Result::Aqbookseller",
-  { id => "vendor_id" },
-  {
-    is_deferrable => 1,
-    join_type     => "LEFT",
-    on_delete     => "SET NULL",
-    on_update     => "CASCADE",
-  },
-);
-
 =head2 packages
 
 Type: many_to_many
@@ -267,8 +252,8 @@ Composing rels: L</erm_eholdings_packages_agreements> -> package
 __PACKAGE__->many_to_many("packages", "erm_eholdings_packages_agreements", "package");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07049 @ 2022-11-11 11:52:09
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:N93LnvdKirtuV6BSrTGzVg
+# Created by DBIx::Class::Schema::Loader v0.07051 @ 2024-07-22 15:10:22
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:YV1ZBen8R0XW5fB+NQjGUA
 
 __PACKAGE__->has_many(
   "user_roles",

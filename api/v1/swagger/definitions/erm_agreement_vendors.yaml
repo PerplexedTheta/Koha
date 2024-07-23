@@ -1,0 +1,15 @@
+---
+type: object
+properties:
+  agreement_vendor_id:
+    type: integer
+    description: Internal agreement vendor identifier
+  agreement_id:
+    type: integer
+    description: Internal agreement identifier
+  vendor_id:
+    type: integer
+    description: Internal vendor identifier
+additionalProperties: false
+required:
+  - vendor_id

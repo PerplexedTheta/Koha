@@ -2952,6 +2952,25 @@ CREATE TABLE `erm_agreement_relationships` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `erm_agreement_vendors`
+--
+
+DROP TABLE IF EXISTS `erm_agreement_vendors`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `erm_agreement_vendors` (
+  `agreement_vendor_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'primary key',
+  `agreement_id` int(11) NOT NULL COMMENT 'link to the agreement',
+  `vendor_id` int(11) NOT NULL COMMENT 'link to the license',
+  PRIMARY KEY (`agreement_vendor_id`),
+  UNIQUE KEY `erm_agreement_vendors_uniq` (`agreement_id`,`vendor_id`),
+  KEY `erm_agreement_vendors_ibfk_2` (`vendor_id`),
+  CONSTRAINT `erm_agreement_vendors_ibfk_1` FOREIGN KEY (`agreement_id`) REFERENCES `erm_agreements` (`agreement_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `erm_agreement_vendors_ibfk_2` FOREIGN KEY (`vendor_id`) REFERENCES `aqbooksellers` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `erm_agreements`
 --
 
@@ -2960,7 +2979,6 @@ DROP TABLE IF EXISTS `erm_agreements`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `erm_agreements` (
   `agreement_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'primary key',
-  `vendor_id` int(11) DEFAULT NULL COMMENT 'foreign key to aqbooksellers',
   `name` varchar(255) NOT NULL COMMENT 'name of the agreement',
   `description` longtext DEFAULT NULL COMMENT 'description of the agreement',
   `status` varchar(80) NOT NULL COMMENT 'current status of the agreement',
@@ -2968,9 +2986,7 @@ CREATE TABLE `erm_agreements` (
   `is_perpetual` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'is the agreement perpetual',
   `renewal_priority` varchar(80) DEFAULT NULL COMMENT 'priority of the renewal',
   `license_info` varchar(80) DEFAULT NULL COMMENT 'info about the license',
-  PRIMARY KEY (`agreement_id`),
-  KEY `erm_agreements_ibfk_1` (`vendor_id`),
-  CONSTRAINT `erm_agreements_ibfk_1` FOREIGN KEY (`vendor_id`) REFERENCES `aqbooksellers` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+  PRIMARY KEY (`agreement_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
