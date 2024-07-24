@@ -239,6 +239,16 @@ export default {
         },
         checkForm(agreement) {
             let errors = []
+            
+            let agreement_vendors = agreement.agreement_vendors
+            const vendor_ids = agreement_vendors.map(al => al.vendor_id)
+            const duplicate_vendor_ids = vendor_ids.filter(
+                (id, i) => vendor_ids.indexOf(id) !== i
+            )
+
+            if (duplicate_vendor_ids.length) {
+                errors.push(this.$__("A vendor is used several times"))
+            }
 
             let agreement_licenses = agreement.agreement_licenses
             // Do not use al.license.name here! Its name is not the one linked with al.license_id
@@ -321,6 +331,10 @@ export default {
 
             delete agreement.agreement_id
             agreement.is_perpetual = agreement.is_perpetual ? true : false
+
+            agreement.agreement_vendors = agreement.agreement_vendors.map(
+                ({ vendor_id, ...keepAttrs }) => keepAttrs
+            );
 
             agreement.periods = agreement.periods.map(
                 ({ agreement_id, agreement_period_id, ...keepAttrs }) =>

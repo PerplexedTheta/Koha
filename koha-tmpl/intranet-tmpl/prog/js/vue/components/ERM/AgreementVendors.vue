@@ -21,15 +21,18 @@
                     >
                     <v-select
                         :id="`agreement_vendor_id_${counter}`"
+                        v-model="agreement_vendor.id"
                         label="name"
-                        :reduce="vendor => vendor.id"
-                        :options="vendorOptions"
-                        :filter-by="filterVendors"
+                        :reduce="a => a.id"
+                        :options="vendors"
                     >
-                        <template v-slot:option="v">
-                            {{ v.name }}
-                            <br />
-                            <cite>{{ v.aliases.map(a => a.alias).join(", ") }}</cite>
+                        <template #search="{ attributes, events }">
+                            <input
+                                :required="!agreement_vendor.id"
+                                class="vs__search"
+                                v-bind="attributes"
+                                v-on="events"
+                            />
                         </template>
                     </v-select>
                     <span class="required">{{ $__("Required") }}</span>
@@ -60,30 +63,10 @@ export default {
         const { vendors } = storeToRefs(vendorStore)
         return { vendors }
     },
-    computed: {
-        vendorOptions() {
-            return this.vendors.map(v => ({
-                ...v,
-                full_search:
-                    v.name +
-                    (v.aliases.length > 0
-                        ? " (" + v.aliases.map(a => a.alias).join(", ") + ")"
-                        : ""),
-            }))
-        },
-    },
     methods: {
-        filterVendors(vendor, label, search) {
-            return (
-                (vendor.full_search || "")
-                    .toLocaleLowerCase()
-                    .indexOf(search.toLocaleLowerCase()) > -1
-            )
-        },
         addVendor() {
             this.agreement_vendors.push({
-                vendor_id: null,
-                vendor: { name: "" },
+                id: null,
             })
         },
         deleteVendor(counter) {
