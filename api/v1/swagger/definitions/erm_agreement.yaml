@@ -5,11 +5,6 @@ properties:
     type: integer
     description: internally assigned agreement identifier
     readOnly: true
-  vendor_id:
-    description: foreign key to aqbooksellers
-    type:
-      - integer
-      - "null"
   name:
     description: name of the agreement
     type: string
@@ -59,16 +54,16 @@ properties:
     description: agreement licenses
     items:
       $ref: erm_agreement_license.yaml
+  agreement_vendors:
+    type: array
+    description: agreement vendors
+    items:
+      $ref: erm_agreement_vendor.yaml
   documents:
     type: array
     description: documents
     items:
       $ref: erm_document.yaml
-  vendor:
-    description: Information about the vendor
-    type:
-      - object
-      - "null"
 
 additionalProperties: false
 required:

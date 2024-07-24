@@ -59,6 +59,15 @@ export class ERMAPIClient extends HttpClient {
         };
     }
 
+    get vendors() {
+        return { 
+            init: id =>
+                this.init({
+                    endpoint: "" + id,
+                }),
+        };
+    }
+
     get licenses() {
         return {
             get: id =>

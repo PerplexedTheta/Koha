@@ -22,15 +22,6 @@
                             <span class="required">{{ $__("Required") }}</span>
                         </li>
                         <li>
-                            <label for="agreement_vendor_id"
-                                >{{ $__("Vendor") }}:</label
-                            >
-                            <FormSelectVendors
-                                id="agreement_vendor_id"
-                                v-model="agreement.vendor_id"
-                            />
-                        </li>
-                        <li>
                             <label for="agreement_description"
                                 >{{ $__("Description") }}:
                             </label>
@@ -132,6 +123,7 @@
                         </li>
                     </ol>
                 </fieldset>
+                <AgreementVendors :agreement_vendors="agreement.agreement_vendors" />
                 <AgreementPeriods :periods="agreement.periods" />
                 <UserRoles
                     :user_type="$__('Agreement user %s')"
@@ -169,13 +161,13 @@
 
 <script>
 import { inject } from "vue"
+import AgreementVendors from "./AgreementVendors.vue"
 import AgreementPeriods from "./AgreementPeriods.vue"
 import UserRoles from "./UserRoles.vue"
 import AgreementLicenses from "./AgreementLicenses.vue"
 import AgreementRelationships from "./AgreementRelationships.vue"
 import Documents from "./Documents.vue"
 import ButtonSubmit from "../ButtonSubmit.vue"
-import FormSelectVendors from "../FormSelectVendors.vue"
 import { setMessage, setError, setWarning } from "../../messages"
 import { APIClient } from "../../fetch/api-client.js"
 import { storeToRefs } from "pinia"
@@ -209,13 +201,13 @@ export default {
             agreement: {
                 agreement_id: null,
                 name: "",
-                vendor_id: null,
                 description: "",
                 status: "",
                 closure_reason: "",
                 is_perpetual: false,
                 renewal_priority: "",
                 license_info: "",
+                agreement_vendors: [],
                 periods: [],
                 user_roles: [],
                 agreement_licenses: [],
@@ -328,12 +320,7 @@ export default {
             }
 
             delete agreement.agreement_id
-            delete agreement.vendor
             agreement.is_perpetual = agreement.is_perpetual ? true : false
-
-            if (agreement.vendor_id == "") {
-                agreement.vendor_id = null
-            }
 
             agreement.periods = agreement.periods.map(
                 ({ agreement_id, agreement_period_id, ...keepAttrs }) =>
@@ -392,11 +379,11 @@ export default {
     components: {
         AgreementPeriods,
         UserRoles,
+        AgreementVendors,
         AgreementLicenses,
         AgreementRelationships,
         Documents,
         ButtonSubmit,
-        FormSelectVendors,
     },
     name: "AgreementsFormAdd",
 }
