@@ -241,7 +241,7 @@ export default {
             let errors = []
             
             let agreement_vendors = agreement.agreement_vendors
-            const vendor_ids = agreement_vendors.map(al => al.vendor_id)
+            const vendor_ids = agreement_vendors.map(al => al.id)
             const duplicate_vendor_ids = vendor_ids.filter(
                 (id, i) => vendor_ids.indexOf(id) !== i
             )
@@ -333,8 +333,8 @@ export default {
             agreement.is_perpetual = agreement.is_perpetual ? true : false
 
             agreement.agreement_vendors = agreement.agreement_vendors.map(
-                ({ vendor_id, ...keepAttrs }) => keepAttrs
-            );
+                vendor => ({ agreement_id: agreement_id, vendor_id: vendor.id })
+            )
 
             agreement.periods = agreement.periods.map(
                 ({ agreement_id, agreement_period_id, ...keepAttrs }) =>
@@ -378,7 +378,7 @@ export default {
                 client.agreements.create(agreement).then(
                     success => {
                         setMessage(this.$__("Agreement created"))
-                        this.$router.push({ name: "AgreementsList" })
+                        //this.$router.push({ name: "AgreementsList" })
                     },
                     error => {}
                 )

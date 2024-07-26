@@ -25,6 +25,7 @@
                         label="name"
                         :reduce="a => a.id"
                         :options="vendors"
+                        :filter-by="filterVendors"
                     >
                         <template #search="{ attributes, events }">
                             <input
@@ -53,17 +54,31 @@
 </template>
 
 <script>
-import { inject } from "vue"
-import { storeToRefs } from "pinia"
+import { APIClient } from "../../fetch/api-client.js"
 
 export default {
-    name: "AgreementVendors",
-    setup() {
-        const vendorStore = inject("vendorStore")
-        const { vendors } = storeToRefs(vendorStore)
-        return { vendors }
+    data() {
+        return {
+            vendors: [],
+        }
+    },
+    beforeCreate() {
+        const acq_client = APIClient.acquisition
+        acq_client.vendors.getAll().then(
+            vendors => {
+                this.vendors = vendors
+            },
+            error => {}
+        )
     },
     methods: {
+        filterVendors(vendor, label, search) {
+            return (
+                (vendor.full_search || "")
+                    .toLocaleLowerCase()
+                    .indexOf(search.toLocaleLowerCase()) > -1
+            )
+        },
         addVendor() {
             this.agreement_vendors.push({
                 id: null,
@@ -76,5 +91,6 @@ export default {
     props: {
         agreement_vendors: Array,
     },
+    name: "AgreementVendors",
 }
 </script>
