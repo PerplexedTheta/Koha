@@ -8,7 +8,7 @@ sub search {
     my ($params)  = @_;
     my $shelfname = $params->{shelfname};
     my $count     = $params->{count};
-    my $owner     = $params->{owner};
+    my $owner_id  = $params->{owner_id};
     my $sortby    = $params->{sortby};
     my $public    = $params->{public} // 1;
     $public = $public ? 1 : 0;
@@ -27,7 +27,7 @@ sub search {
     # FIXME refactore the following queries
     # We should call Koha::Virtualshelves
     my $select = q|
-        SELECT vs.shelfnumber, vs.shelfname, vs.owner, vs.public AS public,
+        SELECT vs.shelfnumber, vs.shelfname, vs.owner_id, vs.public AS public,
         vs.created_on, vs.lastmodified as modification_time,
         bo.surname, bo.firstname, vs.sortfield as sortby,
         count(vc.biblionumber) as count
@@ -35,7 +35,7 @@ sub search {
 
     my $from_total = q|
         FROM virtualshelves vs
-        LEFT JOIN borrowers bo ON vs.owner=bo.borrowernumber
+        LEFT JOIN borrowers bo ON vs.owner_id=bo.borrowernumber
     |;
 
     my $from = $from_total . q|
@@ -62,9 +62,9 @@ sub search {
         push @where_strs, 'shelfname LIKE ?';
         push @args,       "%$shelfname%";
     }
-    if ( defined $owner and $owner ne '' ) {
+    if ( defined $owner_id and $owner_id ne '' ) {
         push @where_strs, '( bo.firstname LIKE ? OR bo.surname LIKE ? )';
-        push @args, "%$owner%", "%$owner%";
+        push @args, "%$owner_id%", "%$owner_id%";
     }
     if ( defined $sortby and $sortby ne '' ) {
         push @where_strs, 'sortfield = ?';
@@ -75,7 +75,7 @@ sub search {
     push @args,       $public;
 
     if ( !$public ) {
-        push @where_strs, '(vs.owner = ? OR sh.borrowernumber = ?)';
+        push @where_strs, '(vs.owner_id = ? OR sh.borrowernumber = ?)';
         push @args, $loggedinuser, $loggedinuser;
     }
 
@@ -109,7 +109,7 @@ sub search {
         $limit = sprintf "LIMIT %s,%s", $start, $length;
     }
 
-    my $group_by = " GROUP BY vs.shelfnumber, vs.shelfname, vs.owner, vs.public,
+    my $group_by = " GROUP BY vs.shelfnumber, vs.shelfname, vs.owner_id, vs.public,
         vs.created_on, vs.lastmodified, bo.surname, bo.firstname, vs.sortfield ";
 
     my $query = join(
@@ -129,7 +129,7 @@ sub search {
 
     # Get the recordsTotal DataTable variable
     $query = q|SELECT COUNT(vs.shelfnumber)| . $from_total . q| WHERE public = ?|;
-    $query .= q| AND (vs.owner = ? OR sh.borrowernumber = ?)| if !$public;
+    $query .= q| AND (vs.owner_id = ? OR sh.borrowernumber = ?)| if !$public;
     @args = !$public ? ( $loggedinuser, $public, $loggedinuser, $loggedinuser ) : ($public);
     ($recordsTotal) = $dbh->selectrow_array( $query, undef, @args );
 

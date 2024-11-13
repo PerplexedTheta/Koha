@@ -18,8 +18,8 @@
                     "[% tnx('{count} item', '{count} items', count, { count = d.count }) | $raw %]",
                 "dt_is_shared":
                     "[% IF d.public %]<span>Public</span>[% ELSIF d.is_shared %]<span>Shared</span>[% ELSE %]<span>Private</span>[% END %]",
-                "dt_owner":
-                    "<a href='/cgi-bin/koha/members/moremember.pl?borrowernumber=[% d.owner | html %]'>[% d.firstname | html | $To %] [% d.surname | html | $To %]</a>",
+                "dt_owner_id":
+                    "<a href='/cgi-bin/koha/members/moremember.pl?borrowernumber=[% d.owner_id | html %]'>[% d.firstname | html | $To %] [% d.surname | html | $To %]</a>",
                 "dt_sortby":
                     [% IF d.sortby == "author" %]"<span>Author</span>"[% ELSIF d.sortby == "copyrightdate" %]"<span>Year</span>"[% ELSIF d.sortby == "itemcallnumber" %]"<span>Call number</span>"[% ELSIF d.sortby == "dateadded" %]"<span>Date added</span>"[% ELSE %]"<span>Title</span>"[% END %],
                 "dt_created_on":

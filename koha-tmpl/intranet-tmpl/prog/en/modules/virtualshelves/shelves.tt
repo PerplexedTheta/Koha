@@ -438,12 +438,12 @@
                     <li>
                         <span class="label">Owner: </span>
                         [% IF op == 'add_form' %]
-                            <input type="hidden" name="owner" id="owner" value="[% loggedinusernumber | html %]" />[% logged_in_user.userid | html %]
+                            <input type="hidden" name="owner_id" id="owner_id" value="[% loggedinusernumber | html %]" />[% logged_in_user.userid | html %]
                         [% ELSE %]
                             [% IF owner %]
-                                <input type="hidden" id="owner" name="owner" value="[% owner.borrowernumber | html %]" />[% owner.firstname _ ' ' _ owner.surname | html %]
+                                <input type="hidden" id="owner_id" name="owner_id" value="[% owner.borrowernumber | html %]" />[% owner.firstname _ ' ' _ owner.surname | html %]
                             [% ELSE %]
-                                <input type="hidden" id="owner" name="owner" value="[% loggedinusernumber | html %]" />[% logged_in_user.userid | html %]
+                                <input type="hidden" id="owner_id" name="owner_id" value="[% loggedinusernumber | html %]" />[% logged_in_user.userid | html %]
                             [% END %]
                         [% END %]
                     </li>
@@ -653,7 +653,7 @@
                             'vs.shelfname',
                             'count',
                             'vs.public',
-                            'vs.owner',
+                            'vs.owner_id',
                             'vs.sortfield',
                             'vs.created_on',
                             'vs.lastmodified',
@@ -671,7 +671,7 @@
                                 public,
                                 order_by: order_by.join(','),
                                 shelfname: $("#searchshelfname_filter").val(),
-                                owner: $("#searchowner_filter").val(),
+                                owner_id: $("#searchowner_filter").val(),
                                 sortby: $("#searchsortby_filter").val(),
                                 template_path: 'virtualshelves/tables/shelves_results.tt',
                                 allow_transfer: '[% allow_transfer | html %]',
@@ -683,7 +683,7 @@
                         { "data": 'dt_shelfname' },
                         { "data": 'dt_count' },
                         { "data": 'dt_is_shared' },
-                        { "data": 'dt_owner' },
+                        { "data": 'dt_owner_id' },
                         { "data": 'dt_sortby' },
                         { "data": 'dt_created_on' },
                         { "data": 'dt_modification_time' },

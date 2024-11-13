@@ -612,7 +612,7 @@
                                     <input type="hidden" name="referer" value="[% referer | html %]" />
                                     <input type="hidden" name="shelfnumber" value="[% shelf.shelfnumber | html %]" />
                                 [% END %]
-                                <input type="hidden" name="owner" id="owner" value="[% loggedinusernumber | html %]" />
+                                <input type="hidden" name="owner_id" id="owner_id" value="[% loggedinusernumber | html %]" />
                                 <ol>
                                     <li>
                                         <label class="required" for="shelfname">List name: </label>

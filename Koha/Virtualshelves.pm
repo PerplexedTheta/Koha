@@ -89,7 +89,7 @@ sub get_private_shelves {
             public => 0,
             -or    => {
                 'virtualshelfshares.borrowernumber' => $borrowernumber,
-                'me.owner'                          => $borrowernumber,
+                'me.owner_id'                       => $borrowernumber,
             }
         },
         {
@@ -146,7 +146,7 @@ sub get_some_shelves {
             push @conditions, {
                 -or => [
                     {
-                        "me.owner"                   => $borrowernumber,
+                        "me.owner_id"                => $borrowernumber,
                         "me.allow_change_from_owner" => 1,
                     },
                     "me.allow_change_from_others"          => 1,
@@ -158,7 +158,8 @@ sub get_some_shelves {
             push @conditions, {
                 -or => [
                     {
-                        "me.owner"                   => $borrowernumber,
+                        "me.owner_id"                => $borrowernumber,
+                        "me.owner_id"                => $borrowernumber,
                         "me.allow_change_from_owner" => 1,
                     },
                     "me.allow_change_from_others" => 1,
@@ -169,7 +170,7 @@ sub get_some_shelves {
             push @conditions, {
                 -or => [
                     {
-                        "me.owner"                   => $borrowernumber,
+                        "me.owner_id"                => $borrowernumber,
                         "me.allow_change_from_owner" => 1,
                     },
                     "me.allow_change_from_others" => 1,
@@ -181,7 +182,7 @@ sub get_some_shelves {
         push @conditions, {
             -or => {
                 "virtualshelfshares.borrowernumber" => $borrowernumber,
-                "me.owner"                          => $borrowernumber,
+                "me.owner_id"                       => $borrowernumber,
             }
         };
     }
@@ -216,8 +217,8 @@ sub get_shelves_containing_record {
                 {
                     public => 0,
                     -or    => {
-                        'me.owner' => $borrowernumber,
-                        -or        => {
+                        'me.owner_id' => $borrowernumber,
+                        -or           => {
                             'virtualshelfshares.borrowernumber' => $borrowernumber,
                         },
                     }
