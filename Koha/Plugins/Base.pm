@@ -20,8 +20,10 @@ package Koha::Plugins::Base;
 use Modern::Perl;
 
 use Cwd        qw( abs_path );
+use File::Basename;
 use List::Util qw( max );
 use Try::Tiny;
+use File::Spec;
 
 use base qw{Module::Bundled::Files};
 
@@ -191,6 +193,12 @@ sub get_template {
     return $template;
 }
 
+=head2 get_metadata
+
+    Returns a hash containing this plugin's metadata
+
+=cut
+
 sub get_metadata {
     my ( $self, $args ) = @_;
 
@@ -198,6 +206,108 @@ sub get_metadata {
     my $metadata = $self->{metadata};
     defined( $metadata->{$_} ) && utf8::decode( $metadata->{$_} ) for keys %$metadata;
     return $metadata;
+}
+
+=head2 get_valuebuilder_path
+
+    Returns the full path to a valuebuilder script in this plugin
+
+    my $path = $plugin->get_valuebuilder_path('custom_date.pl');
+
+=cut
+
+sub get_valuebuilder_path {
+    my ($self, $filename) = @_;
+    
+    # Get the plugin directory
+    my $plugin_dir = $self->get_plugin_directory();
+    
+    # Return the path to the value builder
+    return File::Spec->catfile($plugin_dir, 'valuebuilders', $filename);
+}
+
+# Helper method to get the plugin directory
+sub get_plugin_directory {
+    my ($self) = @_;
+    
+    # Get the path to this module
+    my $class = ref($self) || $self;
+    my @parts = split('::', $class);
+    my $module_path = join('/', @parts) . '.pm';
+    my $inc_path = $INC{$module_path};
+    
+    # Return the directory containing this module
+    return dirname($inc_path);
+}
+
+=head2 register_valuebuilder
+
+    Register a valuebuilder included with this plugin
+    
+    $plugin->register_valuebuilder('custom_date.pl');
+
+=cut
+
+sub register_valuebuilder {
+    my ( $self, $filename ) = @_;
+    
+    return unless $filename;
+    
+    my $path = $self->get_valuebuilder_path($filename);
+    return unless $path;
+    
+    my $valuebuilders = $self->retrieve_data('valuebuilders') || [];
+    push @$valuebuilders, $filename unless grep { $_ eq $filename } @$valuebuilders;
+    $self->store_data({ valuebuilders => $valuebuilders });
+    
+    return 1;
+}
+
+=head2 register_valuebuilders
+
+    Register multiple valuebuilders included with this plugin
+    
+    $plugin->register_valuebuilders(['date_picker.pl', 'location_finder.pl']);
+
+=cut
+
+sub register_valuebuilders {
+    my ( $self, $filenames ) = @_;
+    
+    return unless $filenames && ref($filenames) eq 'ARRAY';
+    
+    my $success = 1;
+    foreach my $filename (@$filenames) {
+        $success = 0 unless $self->register_valuebuilder($filename);
+    }
+    
+    return $success;
+}
+
+=head2 get_valuebuilders
+
+    Get all valuebuilders registered by this plugin
+    
+    my $valuebuilders = $plugin->get_valuebuilders();
+
+=cut
+
+sub get_valuebuilders {
+    my ( $self ) = @_;
+    
+    my $valuebuilders = $self->retrieve_data('valuebuilders');
+    
+    # Important: Make sure this returns an array reference when expected
+    if (defined $valuebuilders) {
+        return $valuebuilders if ref($valuebuilders) eq 'ARRAY';
+        # If it's a string representation, convert it back to an array
+        if ($valuebuilders =~ /^ARRAY\(/) {
+            return []; # Return empty array ref if corrupted
+        }
+        return [ $valuebuilders ]; # Convert single value to array ref
+    }
+    
+    return []; # Return empty array ref if no data
 }
 
 =head2 get_qualified_table_name
@@ -389,6 +499,47 @@ sub disable {
     $self->store_data( { '__ENABLED__' => 0 } );
 
     return $self;
+}
+
+=head2 get_valuebuilder_url
+
+    Returns the full URL to a valuebuilder script in this plugin
+
+    my $url = $plugin->get_valuebuilder_url('custom_date.pl');
+
+=cut
+
+sub get_valuebuilder_url {
+    my ($self, $valuebuilder_name) = @_;
+    
+    # Default to empty query parameters if not provided
+    my $params = {
+        plugin_name => $valuebuilder_name,
+    };
+    
+    # Build the URL to the plugin_launcher.pl script
+    my $base_url = "/cgi-bin/koha/cataloguing/plugin_launcher.pl";
+    my $query_string = join("&", map { "$_=" . ($params->{$_} || '') } keys %$params);
+    
+    return $base_url . "?" . $query_string;
+}
+
+=head2 get_valuebuilder_launcher_url
+
+    Returns the full URL to a valuebuilder script in this plugin
+
+    my $url = $plugin->get_valuebuilder_launcher_url('custom_date.pl');
+
+=cut
+
+sub get_valuebuilder_launcher_url {
+    my ( $self, $valuebuilder_name ) = @_;
+
+    # If no valuebuilder name provided, use the one from get_valuebuilder
+    $valuebuilder_name //= $self->get_valuebuilder() if $self->can('get_valuebuilder');
+    
+    # Return the URL to plugin_launcher.pl with appropriate parameters
+    return "/cgi-bin/koha/cataloguing/plugin_launcher.pl?plugin_name=$valuebuilder_name";
 }
 
 1;

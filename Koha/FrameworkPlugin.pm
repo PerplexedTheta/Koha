@@ -211,70 +211,112 @@ sub _error {
 }
 
 sub _load {
-    my ($self) = @_;
+    my ( $self ) = @_;
 
-    my ( $rv, $file );
-    return $self->_error('Plugin needs a name') if !$self->{name};    #2chk
-    $self->{path} //= _valuebuilderpath();
+    # Try to find the class that can handle this plugin
+    my @plugins = Koha::Plugins->new()->GetValueBuilders();
 
-    #NOTE: Resolve symlinks and relative path components if present,
-    #so the base will compare correctly lower down
-    my $abs_base_path = Cwd::abs_path( $self->{path} );
-    $file = $self->{path} . '/' . $self->{name};
-
-    #NOTE: Resolve relative path components to prevent loading files outside the base path
-    my $abs_file_path = Cwd::abs_path($file);
-    if ( $abs_file_path !~ /^\Q$abs_base_path\E/ ) {
-        warn "Attempt to load $file ($abs_file_path) in framework plugin!";
-        return $self->_error('File not found');
+    foreach my $vb ( @plugins ) {
+        my $plugin = $vb->{plugin};
+        
+        # Check if this plugin provides the value builder we need
+        if ( $vb->{name} eq $self->{name} ) {
+            my $path = $plugin->get_valuebuilder_path();
+            warn "Loading value builder from path: $path";
+            
+            if ( -f $path ) {
+                # Store the plugin object for later use
+                $self->{plugin} = $plugin;
+                
+                # undefine oldschool subroutines before defining them again
+                undef &plugin_parameters;
+                undef &plugin_javascript;
+                undef &plugin;
+                
+                my $rv = do($path);
+                return $self->_error($@) if $@;
+                
+                my $type = ref($rv);
+                if ( $type eq 'HASH' ) {    # new style
+                    $self->{oldschool} = 0;
+                    if ( exists $rv->{builder} && ref( $rv->{builder} ) eq 'CODE' ) {
+                        $self->{builder} = $rv->{builder};
+                    } elsif ( exists $rv->{builder} ) {
+                        return $self->_error('Builder sub is no coderef');
+                    }
+                    if ( exists $rv->{launcher} && ref( $rv->{launcher} ) eq 'CODE' ) {
+                        $self->{launcher} = $rv->{launcher};
+                    } elsif ( exists $rv->{launcher} ) {
+                        return $self->_error('Launcher sub is no coderef');
+                    }
+                } else {                    # old school
+                    $self->{oldschool} = 1;
+                    if ( defined(&plugin_javascript) ) {
+                        $self->{builder} = \&plugin_javascript;
+                    }
+                    if ( defined(&plugin) ) {
+                        $self->{launcher} = \&plugin;
+                    }
+                }
+                if ( !$self->{builder} && !$self->{launcher} ) {
+                    return $self->_error('Plugin does not contain builder nor launcher');
+                }
+                $self->{_loaded} = $self->{oldschool} ? 0 : 1;
+                
+                return 1;
+            }
+            else {
+                warn "Value builder file not found at path: $path";
+            }
+        }
     }
-    return $self->_error('File not found') if !-e $file;
 
-    # undefine oldschool subroutines before defining them again
-    undef &plugin_parameters;
-    undef &plugin_javascript;
-    undef &plugin;
-
-    $rv = do($file);
-    return $self->_error($@) if $@;
-
-    my $type = ref($rv);
-    if ( $type eq 'HASH' ) {    # new style
-        $self->{oldschool} = 0;
-        if ( exists $rv->{builder} && ref( $rv->{builder} ) eq 'CODE' ) {
-            $self->{builder} = $rv->{builder};
-        } elsif ( exists $rv->{builder} ) {
-            return $self->_error('Builder sub is no coderef');
+    # If not found via plugin, try in standard dir
+    my $fullpath = C4::Context->config('intranetdir') . "/cataloguing/value_builder/" . $self->{name};
+    if ( -f $fullpath ) {
+        warn "Loading value builder from standard path: $fullpath";
+        
+        # undefine oldschool subroutines before defining them again
+        undef &plugin_parameters;
+        undef &plugin_javascript;
+        undef &plugin;
+        
+        my $rv = do($fullpath);
+        return $self->_error($@) if $@;
+        
+        my $type = ref($rv);
+        if ( $type eq 'HASH' ) {    # new style
+            $self->{oldschool} = 0;
+            if ( exists $rv->{builder} && ref( $rv->{builder} ) eq 'CODE' ) {
+                $self->{builder} = $rv->{builder};
+            } elsif ( exists $rv->{builder} ) {
+                return $self->_error('Builder sub is no coderef');
+            }
+            if ( exists $rv->{launcher} && ref( $rv->{launcher} ) eq 'CODE' ) {
+                $self->{launcher} = $rv->{launcher};
+            } elsif ( exists $rv->{launcher} ) {
+                return $self->_error('Launcher sub is no coderef');
+            }
+        } else {                    # old school
+            $self->{oldschool} = 1;
+            if ( defined(&plugin_javascript) ) {
+                $self->{builder} = \&plugin_javascript;
+            }
+            if ( defined(&plugin) ) {
+                $self->{launcher} = \&plugin;
+            }
         }
-        if ( exists $rv->{launcher} && ref( $rv->{launcher} ) eq 'CODE' ) {
-            $self->{launcher} = $rv->{launcher};
-        } elsif ( exists $rv->{launcher} ) {
-            return $self->_error('Launcher sub is no coderef');
+        if ( !$self->{builder} && !$self->{launcher} ) {
+            return $self->_error('Plugin does not contain builder nor launcher');
         }
-    } else {                    # old school
-        $self->{oldschool} = 1;
-        if ( defined(&plugin_javascript) ) {
-            $self->{builder} = \&plugin_javascript;
-        }
-        if ( defined(&plugin) ) {
-            $self->{launcher} = \&plugin;
-        }
+        $self->{_loaded} = $self->{oldschool} ? 0 : 1;
+        
+        return 1;
     }
-    if ( !$self->{builder} && !$self->{launcher} ) {
-        return $self->_error('Plugin does not contain builder nor launcher');
+    else {
+        warn "Value builder file not found at standard path: $fullpath";
+        return;
     }
-    $self->{_loaded} = $self->{oldschool} ? 0 : 1;
-
-    # old style needs reload due to possible sub redefinition
-    return 1;
-}
-
-sub _valuebuilderpath {
-    return C4::Context->config('intranetdir') . "/cataloguing/value_builder";
-
-    #Formerly, intranetdir/cgi-bin was tested first.
-    #But the intranetdir from koha-conf already includes cgi-bin for
-    #package installs, single and standard installs.
 }
 
 sub _generate_js {
@@ -291,12 +333,20 @@ sub _generate_js {
         return $self->_error('Builder sub not defined');
     }
 
+    # Make a copy of params and add the plugin object to it
+    my $builder_params = { %$params };
+    
+    # Add the value builder's plugin if available
+    if ($self->{name} && $self->{plugin}) {
+        $builder_params->{plugin} = $self->{plugin};
+    }
+    
     my @params = $self->{oldschool} // 0
         ? (
         $params->{dbh}, $params->{record}, $params->{tagslib},
         $params->{id}
         )
-        : ($params);
+        : ($builder_params);
     my @rv = &$sub(@params);
     return $self->_error( 'Builder sub failed: ' . $@ ) if $@;
 
