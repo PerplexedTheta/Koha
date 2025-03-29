@@ -221,53 +221,26 @@ sub _load {
         
         # Check if this plugin provides the value builder we need
         if ( $vb->{name} eq $self->{name} ) {
-            my $path = $plugin->get_valuebuilder_path();
-            warn "Loading value builder from path: $path";
+            warn "Loading value builder from plugin: " . ref($plugin);
             
-            if ( -f $path ) {
-                # Store the plugin object for later use
-                $self->{plugin} = $plugin;
-                
-                # undefine oldschool subroutines before defining them again
-                undef &plugin_parameters;
-                undef &plugin_javascript;
-                undef &plugin;
-                
-                my $rv = do($path);
-                return $self->_error($@) if $@;
-                
-                my $type = ref($rv);
-                if ( $type eq 'HASH' ) {    # new style
-                    $self->{oldschool} = 0;
-                    if ( exists $rv->{builder} && ref( $rv->{builder} ) eq 'CODE' ) {
-                        $self->{builder} = $rv->{builder};
-                    } elsif ( exists $rv->{builder} ) {
-                        return $self->_error('Builder sub is no coderef');
-                    }
-                    if ( exists $rv->{launcher} && ref( $rv->{launcher} ) eq 'CODE' ) {
-                        $self->{launcher} = $rv->{launcher};
-                    } elsif ( exists $rv->{launcher} ) {
-                        return $self->_error('Launcher sub is no coderef');
-                    }
-                } else {                    # old school
-                    $self->{oldschool} = 1;
-                    if ( defined(&plugin_javascript) ) {
-                        $self->{builder} = \&plugin_javascript;
-                    }
-                    if ( defined(&plugin) ) {
-                        $self->{launcher} = \&plugin;
-                    }
-                }
-                if ( !$self->{builder} && !$self->{launcher} ) {
-                    return $self->_error('Plugin does not contain builder nor launcher');
-                }
-                $self->{_loaded} = $self->{oldschool} ? 0 : 1;
-                
-                return 1;
+            # Store the plugin object for later use
+            $self->{plugin} = $plugin;
+            
+            # Get the builder and launcher directly from the plugin object
+            if ($plugin->can('builder_code')) {
+                $self->{builder} = sub { return $plugin->builder_code(@_); };
             }
-            else {
-                warn "Value builder file not found at path: $path";
+            
+            if ($plugin->can('launcher')) {
+                $self->{launcher} = sub { return $plugin->launcher(@_); };
             }
+            
+            if ( !$self->{builder} && !$self->{launcher} ) {
+                return $self->_error('Plugin does not contain builder_code nor launcher methods');
+            }
+            
+            $self->{_loaded} = 1;
+            return 1;
         }
     }
 

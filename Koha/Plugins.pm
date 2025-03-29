@@ -400,7 +400,7 @@ sub GetValueBuilders {
     foreach my $plugin (@plugins) {
         warn "Checking plugin " . $plugin->{class} . " for value builders";
         
-        # Only check if plugin implements get_valuebuilder method
+        # Check if plugin implements get_valuebuilder method
         if ($plugin->can('get_valuebuilder')) {
             # Get the value builder from the plugin
             my $valuebuilder = $plugin->get_valuebuilder();

@@ -240,74 +240,85 @@ sub get_plugin_directory {
     return dirname($inc_path);
 }
 
+=head2 get_valuebuilder
+
+    Returns the value builder identifier for this plugin
+    
+    my $valuebuilder_id = $plugin->get_valuebuilder();
+
+=cut
+
+sub get_valuebuilder {
+    my ( $self ) = @_;
+    
+    # This method should be overridden by plugins that want to provide a value builder
+    return;
+}
+
+=head2 builder_code
+
+    Returns the JavaScript code for the value builder's builder function
+    
+    my $js_code = $plugin->builder_code($params);
+
+=cut
+
+sub builder_code {
+    my ( $self, $params ) = @_;
+    
+    # This method should be overridden by plugins that want to provide a value builder
+    return;
+}
+
+=head2 launcher
+
+    Handles the popup window for the value builder
+    
+    $plugin->launcher();
+
+=cut
+
+sub launcher {
+    my ( $self, $args ) = @_;
+    
+    # This method should be overridden by plugins that want to provide a value builder
+    return;
+}
+
 =head2 register_valuebuilder
 
-    Register a valuebuilder included with this plugin
+    Register a valuebuilder provided by this plugin
     
-    $plugin->register_valuebuilder('custom_date.pl');
+    $plugin->register_valuebuilder();
 
 =cut
 
 sub register_valuebuilder {
-    my ( $self, $filename ) = @_;
+    my ( $self ) = @_;
     
-    return unless $filename;
-    
-    my $path = $self->get_valuebuilder_path($filename);
-    return unless $path;
-    
-    my $valuebuilders = $self->retrieve_data('valuebuilders') || [];
-    push @$valuebuilders, $filename unless grep { $_ eq $filename } @$valuebuilders;
-    $self->store_data({ valuebuilders => $valuebuilders });
-    
+    # Nothing to do, as we now just call get_valuebuilder to check if a plugin has a value builder
     return 1;
-}
-
-=head2 register_valuebuilders
-
-    Register multiple valuebuilders included with this plugin
-    
-    $plugin->register_valuebuilders(['date_picker.pl', 'location_finder.pl']);
-
-=cut
-
-sub register_valuebuilders {
-    my ( $self, $filenames ) = @_;
-    
-    return unless $filenames && ref($filenames) eq 'ARRAY';
-    
-    my $success = 1;
-    foreach my $filename (@$filenames) {
-        $success = 0 unless $self->register_valuebuilder($filename);
-    }
-    
-    return $success;
 }
 
 =head2 get_valuebuilders
 
-    Get all valuebuilders registered by this plugin
+    Get valuebuilder identifier provided by this plugin
     
-    my $valuebuilders = $plugin->get_valuebuilders();
+    my $valuebuilder_id = $plugin->get_valuebuilders();
 
 =cut
 
 sub get_valuebuilders {
     my ( $self ) = @_;
     
-    my $valuebuilders = $self->retrieve_data('valuebuilders');
-    
-    # Important: Make sure this returns an array reference when expected
-    if (defined $valuebuilders) {
-        return $valuebuilders if ref($valuebuilders) eq 'ARRAY';
-        # If it's a string representation, convert it back to an array
-        if ($valuebuilders =~ /^ARRAY\(/) {
-            return []; # Return empty array ref if corrupted
-        }
-        return [ $valuebuilders ]; # Convert single value to array ref
+    # If this plugin has a get_valuebuilder method that returns a non-empty value,
+    # return that value in an array reference
+    if ($self->can('get_valuebuilder')) {
+        my $vb = $self->get_valuebuilder();
+        return $vb ? [$vb] : [];
     }
     
-    return []; # Return empty array ref if no data
+    return [];
 }
 
 =head2 get_qualified_table_name
@@ -526,20 +537,18 @@ sub get_valuebuilder_url {
 
 =head2 get_valuebuilder_launcher_url
 
-    Returns the full URL to a valuebuilder script in this plugin
+    Returns the full URL to launch this plugin's value builder
 
-    my $url = $plugin->get_valuebuilder_launcher_url('custom_date.pl');
+    my $url = $plugin->get_valuebuilder_launcher_url();
 
 =cut
 
 sub get_valuebuilder_launcher_url {
-    my ( $self, $valuebuilder_name ) = @_;
+    my ( $self ) = @_;
 
-    # If no valuebuilder name provided, use the one from get_valuebuilder
-    $valuebuilder_name //= $self->get_valuebuilder() if $self->can('get_valuebuilder');
-    
-    # Return the URL to plugin_launcher.pl with appropriate parameters
-    return "/cgi-bin/koha/cataloguing/plugin_launcher.pl?plugin_name=$valuebuilder_name";
+    # Generate the URL to run.pl with the launcher method
+    my $plugin_class = ref($self);
+    return "/cgi-bin/koha/plugins/run.pl?class=$plugin_class&method=launcher";
 }
 
 1;
