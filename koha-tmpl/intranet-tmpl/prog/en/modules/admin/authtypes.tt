@@ -115,7 +115,7 @@
                 [% END %]
             </h1>
             <fieldset class="rows">
-                <legend class="sr-only">Enter authority type details</legend>
+                <legend class="visually-hidden">Enter authority type details</legend>
                 <ol>
                     <li>
                         [% IF authority_type.authtypecode.defined %]

@@ -96,7 +96,7 @@
                 [% END %]
             </h1>
             <fieldset class="rows">
-                <legend class="sr-only">Account details</legend>
+                <legend class="visually-hidden">Account details</legend>
 
                 <ol>
                     <li>

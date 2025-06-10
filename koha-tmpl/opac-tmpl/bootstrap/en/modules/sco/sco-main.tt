@@ -216,7 +216,7 @@
                                                                         <td>
                                                                             <form action="/cgi-bin/koha/sco/sco-main.pl" method="post">
                                                                                 [% INCLUDE 'csrf-token.inc' %]
-                                                                                <legend class="sr-only">Issue renews</legend>
+                                                                                <legend class="visually-hidden">Issue renews</legend>
                                                                                 <input type="hidden" name="patronid" value="[% patronid | html %]" />
                                                                                 <input type="hidden" name="load_checkouts" value="[% load_checkouts | html %]" />
                                                                                 <input type="hidden" name="barcode" value="[% ISSUE.barcode | html %]" />
@@ -249,7 +249,7 @@
                                                                             <td>
                                                                                 <form action="/cgi-bin/koha/sco/sco-main.pl" method="post">
                                                                                     [% INCLUDE 'csrf-token.inc' %]
-                                                                                    <legend class="sr-only">Issue renews</legend>
+                                                                                    <legend class="visually-hidden">Issue renews</legend>
                                                                                     <input type="hidden" name="patronid" value="[% patronid | html %]" />
                                                                                     <input type="hidden" name="load_checkouts" value="[% load_checkouts | html %]" />
                                                                                     <input type="hidden" name="barcode" value="[% ISSUE.barcode | html %]" />
@@ -592,7 +592,7 @@
                 [% IF ( item.returnitem && Koha.Preference('SCOAllowCheckin') ) %]
                     <form action="/cgi-bin/koha/sco/sco-main.pl" name="errorForm" class="inline" method="post">
                         [% INCLUDE 'csrf-token.inc' %]
-                        <legend class="sr-only">Return</legend>
+                        <legend class="visually-hidden">Return</legend>
                         <input type="hidden" name="op" value="cud-returnbook" />
                         <input type="hidden" name="patronid" value="[% patronid | html %]" />
                         <input type="hidden" name="barcode" value="[% item.barcode | html %]" />
@@ -603,7 +603,7 @@
                 [% END %]
 
                 <form action="/cgi-bin/koha/sco/sco-main.pl" name="errorForm" class="inline" method="get">
-                    <legend class="sr-only">Error</legend>
+                    <legend class="visually-hidden">Error</legend>
                     <input type="hidden" name="op" value="" />
                     <input type="hidden" name="patronid" value="[% patronid | html %]" />
                     <input type="hidden" name="barcode" value="[% item.barcode | html %]" />
@@ -627,7 +627,7 @@
                 [% IF ( c.renew && Koha.Preference('SCOAllowCheckin') ) %]
                     <form action="/cgi-bin/koha/sco/sco-main.pl" name="confirmForm" class="inline" method="post">
                         [% INCLUDE 'csrf-token.inc' %]
-                        <legend class="sr-only">Return</legend>
+                        <legend class="visually-hidden">Return</legend>
                         <input type="hidden" name="op" value="cud-returnbook" />
                         <input type="hidden" name="patronid" value="[% patronid | html %]" />
                         <input type="hidden" name="barcode" value="[% c.barcode | html %]" />
@@ -641,7 +641,7 @@
                 [% UNLESS ( c.renew ) %]
                     <form action="/cgi-bin/koha/sco/sco-main.pl" name="confirmForm" class="inline" method="post">
                         [% INCLUDE 'csrf-token.inc' %]
-                        <legend class="sr-only">Renew</legend>
+                        <legend class="visually-hidden">Renew</legend>
                         <input type="hidden" name="op" value="cud-renew" />
                         <input type="hidden" name="patronid" value="[% patronid | html %]" />
                         <input type="hidden" name="barcode" value="[% c.barcode | html %]" />
@@ -653,7 +653,7 @@
                 [% ELSE %]
                     <form action="/cgi-bin/koha/sco/sco-main.pl" name="confirmForm" class="inline" method="post">
                         [% INCLUDE 'csrf-token.inc' %]
-                        <legend class="sr-only">Renew</legend>
+                        <legend class="visually-hidden">Renew</legend>
                         <input type="hidden" name="op" value="cud-renew" />
                         <input type="hidden" name="patronid" value="[% patronid | html %]" />
                         <input type="hidden" name="barcode" value="[% c.barcode | html %]" />
@@ -665,7 +665,7 @@
                 [% END %]
 
                 <form action="/cgi-bin/koha/sco/sco-main.pl" name="confirmForm" class="inline" method="get">
-                    <legend class="sr-only">Cancel</legend>
+                    <legend class="visually-hidden">Cancel</legend>
                     <input type="hidden" name="op" value="" />
                     <input type="hidden" name="patronid" value="[% patronid | html %]" />
                     <input type="hidden" name="load_checkouts" value="[% load_checkouts | html %]" />

@@ -109,7 +109,7 @@
             [% INCLUDE 'csrf-token.inc' %]
             <input type="hidden" name="op" value="cud-add_validate" />
             <fieldset class="rows">
-                <legend class="sr-only">New currency entry form</legend>
+                <legend class="visually-hidden">New currency entry form</legend>
                 <ol>
                     <li>
                         [% IF currency %]
