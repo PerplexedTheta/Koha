@@ -68,21 +68,16 @@
                         group, counter
                     ) in instancedResource.getFieldGroupings('Form')"
                     v-bind:key="counter"
-                    class="rows"
+                    class="fg"
                 >
                     <legend v-if="group.name">{{ group.name }}</legend>
-                    <ol>
-                        <li
-                            v-for="(attr, index) in group.fields"
-                            v-bind:key="index"
-                        >
-                            <FormElement
-                                :resource="resourceToSave"
-                                :attr="attr"
-                                :index="index"
-                            />
-                        </li>
-                    </ol>
+                    <FormElement
+                        v-for="(attr, index) in group.fields"
+                        v-bind:key="index"
+                        :resource="resourceToSave"
+                        :attr="attr"
+                        :index="index"
+                    />
                 </fieldset>
             </div>
             <fieldset

@@ -129,7 +129,7 @@ export default {
     font-size: 100%;
 }
 
-form .v-select {
+/* form .v-select {
     display: inline-block;
     background-color: white;
     width: 30%;
@@ -147,7 +147,7 @@ textarea {
 }
 .flatpickr-input {
     width: 30%;
-}
+} */
 .sidebar_menu ul li a.current.disabled {
     background-color: inherit;
     border-left: 5px solid transparent;

@@ -1,9 +1,9 @@
 <template>
-    <fieldset class="rows" :id="`${name + '_' + 'relationship'}`">
+    <fieldset class="fg" :id="`${name + '_' + 'relationship'}`">
         <legend v-if="title">{{ title }}</legend>
         <fieldset
             :id="`${name + '_' + counter}`"
-            class="rows"
+            class="fg"
             v-for="(resourceRelationship, counter) in resourceRelationships"
             v-bind:key="counter"
         >
@@ -18,19 +18,14 @@
                     }}</a
                 >
             </legend>
-            <ol>
-                <li
-                    v-for="(attr, index) in relationshipFields"
-                    v-bind:key="index"
-                >
-                    <FormElement
-                        :resource="resourceRelationship"
-                        :attr="attr"
-                        :index="counter"
-                        v-bind="handleOptions()"
-                    />
-                </li>
-            </ol>
+            <FormElement
+                v-for="(attr, index) in relationshipFields"
+                v-bind:key="index"
+                :resource="resourceRelationship"
+                :attr="attr"
+                :index="counter"
+                v-bind="handleOptions()"
+            />
         </fieldset>
         <a
             v-if="resourceRelationshipCount > 0 || noCountRequired"

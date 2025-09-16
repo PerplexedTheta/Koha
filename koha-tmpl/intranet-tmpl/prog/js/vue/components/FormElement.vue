@@ -1,197 +1,214 @@
 <template>
-    <label
-        v-if="attr.label"
-        :for="getElementId"
-        :class="{ required: attr.required }"
-        :style="{ ...attr.style }"
-        >{{ attr.label }}:</label
-    >
-    <template v-if="attr.type == 'number'">
-        <InputNumber
-            :id="getElementId"
-            v-model="resource[attr.name]"
-            :placeholder="attr.placeholder || attr.label"
-            :required="attr.required ? true : false"
-            :size="attr.size"
-            :disabled="disabled"
-            @update:modelValue="checkForInputError()"
-        />
-    </template>
-    <template v-else-if="attr.type == 'text'">
-        <InputText
-            :id="getElementId"
-            v-model="resource[attr.name]"
-            :placeholder="attr.placeholder || attr.label"
-            :required="attr.required ? true : false"
-            :disabled="disabled"
-            @update:modelValue="checkForInputError()"
-        />
-    </template>
-    <template v-else-if="attr.type == 'textarea'">
-        <TextArea
-            :id="getElementId"
-            v-model="resource[attr.name]"
-            :rows="attr.textAreaRows"
-            :cols="attr.textAreaCols"
-            :placeholder="attr.placeholder || attr.label"
-            :required="attr.required ? true : false"
-            :disabled="disabled"
-            @update:modelValue="checkForInputError()"
-        />
-    </template>
-    <template v-else-if="attr.type == 'checkbox'">
-        <InputCheckbox
-            :id="getElementId"
-            type="checkbox"
-            v-model="resource[attr.name]"
-            :changeMethod="attr.onChange && attr.onChange.bind(this, resource)"
-            :disabled="disabled"
-        />
-    </template>
-    <template v-else-if="attr.type == 'radio'">
-        <template
-            v-for="(option, index) in attr.options"
-            :key="`radio-option-${index}`"
-        >
+    <div :class="attr.label ? 'fg-row' : ''">
+        <div class="fg-label" v-if="attr.label">
             <label
-                v-if="option.description"
-                :for="attr.name + '_' + option.value"
-                >{{ option.description }}:
-                <InputRadio
-                    :name="option.description"
-                    :id="attr.name + '_' + option.value"
-                    :value="option.value"
-                    :checked="
-                        (!Object.keys(resource).includes(attr.name) &&
-                            attr.default == option.value) ||
-                        (Object.keys(resource).includes(attr.name) &&
-                            option.value == resource[attr.name])
-                    "
+                :for="getElementId"
+                :class="{ required: attr.required }"
+                :style="{ ...attr.style }"
+                >{{ attr.label }}:</label
+            >
+        </div>
+        <div :class="attr.label ? 'fg-input' : ''">
+            <template v-if="attr.type == 'number'">
+                <InputNumber
+                    :id="getElementId"
                     v-model="resource[attr.name]"
-                    @change="
-                        attr.onChange && attr.onChange.bind(this, resource)
-                    "
-                />
-            </label>
-        </template>
-    </template>
-    <template v-else-if="attr.type == 'boolean'">
-        <label class="radio" :for="getElementId + '_yes'"
-            >{{ $__("Yes") }}:
-            <InputRadio
-                type="radio"
-                :name="attr.name"
-                :id="attr.name + '_yes'"
-                :value="true"
-                :checked="resource[attr.name] == true"
-                v-model="resource[attr.name]"
-            />
-        </label>
-        <label class="radio" :for="getElementId + '_no'"
-            >{{ $__("No") }}:
-            <InputRadio
-                type="radio"
-                :name="attr.name"
-                :id="attr.name + '_no'"
-                :checked="resource[attr.name] == false"
-                :value="false"
-                v-model="resource[attr.name]"
-            />
-        </label>
-    </template>
-    <template v-else-if="attr.type == 'select'">
-        <v-select
-            :id="getElementId"
-            v-model="resource[attr.name]"
-            :label="attr.selectLabel"
-            :reduce="av => selectRequiredKey(av)"
-            :options="selectOptions"
-            :required="!resource[attr.name] && attr.required"
-            :disabled="disabled"
-            :multiple="attr.allowMultipleChoices"
-            @option:selected="attr.onSelected && attr.onSelected(resource)"
-        >
-            <template v-if="attr.required" #search="{ attributes, events }">
-                <input
-                    :required="!resource[attr.name]"
-                    class="vs__search"
-                    v-bind="attributes"
-                    v-on="events"
+                    :placeholder="attr.placeholder || attr.label"
+                    :required="attr.required ? true : false"
+                    :size="attr.size"
+                    :disabled="disabled"
+                    @update:modelValue="checkForInputError()"
                 />
             </template>
-        </v-select>
-    </template>
-    <template v-else-if="attr.type == 'vendor'">
-        <component
-            :is="requiredComponent"
-            :id="getElementId"
-            v-bind="getComponentProps()"
-            v-on="getEventHandlers()"
-            v-model="resource[attr.name]"
-        ></component>
-    </template>
-    <template v-else-if="attr.type == 'date'">
-        <component
-            :is="requiredComponent"
-            :id="getElementId"
-            v-bind="getComponentProps()"
-            v-on="getEventHandlers()"
-            v-model="resource[attr.name]"
-        ></component>
-    </template>
-    <template v-else-if="attr.type == 'component' && attr.componentPath">
-        <component
-            v-if="isVModelRequired(attr.componentPath)"
-            :is="requiredComponent"
-            v-bind="getComponentProps()"
-            v-model="resource[attr.name]"
-            v-on="getEventHandlers()"
-        ></component>
-        <component
-            v-else
-            :is="requiredComponent"
-            v-bind="getComponentProps()"
-            v-on="getEventHandlers()"
-        ></component>
-    </template>
-    <template
-        v-else-if="attr.type == 'relationshipWidget' && attr.componentProps"
-    >
-        <component
-            :is="requiredComponent"
-            :title="attr.group ? null : attr.label"
-            :apiClient="attr.apiClient"
-            :name="attr.name"
-            v-bind="getComponentProps()"
-            v-on="getEventHandlers()"
-        ></component>
-    </template>
-    <template v-else-if="attr.type == 'relationshipSelect'">
-        <FormRelationshipSelect
-            v-bind="attr"
-            :resource="resource"
-        ></FormRelationshipSelect>
-    </template>
-    <template v-else-if="attr.type == 'additional_fields'">
-        <AdditionalFieldsEntry
-            :resource="resource"
-            :additional_field_values="resource.extended_attributes"
-            :extended_attributes_resource_type="
-                attr.extended_attributes_resource_type
-            "
-            @additional-fields-changed="additionalFieldsChanged"
-        ></AdditionalFieldsEntry>
-    </template>
-    <template v-else>
-        <span>{{
-            $__("Programming error: unknown type %s").format(attr.type)
-        }}</span>
-    </template>
-    <ToolTip v-if="attr.toolTip" :toolTip="attr.toolTip"></ToolTip>
-    <span v-if="attr.required" class="required">{{ $__("Required") }}</span>
-    <span style="margin-left: 5px" class="error" v-if="fieldInputError">
-        {{ attr.formErrorMessage }}
-    </span>
+            <template v-else-if="attr.type == 'text'">
+                <InputText
+                    :id="getElementId"
+                    v-model="resource[attr.name]"
+                    :placeholder="attr.placeholder || attr.label"
+                    :required="attr.required ? true : false"
+                    :disabled="disabled"
+                    @update:modelValue="checkForInputError()"
+                />
+            </template>
+            <template v-else-if="attr.type == 'textarea'">
+                <TextArea
+                    :id="getElementId"
+                    v-model="resource[attr.name]"
+                    :rows="attr.textAreaRows"
+                    :cols="attr.textAreaCols"
+                    :placeholder="attr.placeholder || attr.label"
+                    :required="attr.required ? true : false"
+                    :disabled="disabled"
+                    @update:modelValue="checkForInputError()"
+                />
+            </template>
+            <template v-else-if="attr.type == 'checkbox'">
+                <InputCheckbox
+                    :id="getElementId"
+                    type="checkbox"
+                    v-model="resource[attr.name]"
+                    :changeMethod="
+                        attr.onChange && attr.onChange.bind(this, resource)
+                    "
+                    :disabled="disabled"
+                />
+            </template>
+            <template v-else-if="attr.type == 'radio'">
+                <template
+                    v-for="(option, index) in attr.options"
+                    :key="`radio-option-${index}`"
+                >
+                    <label
+                        v-if="option.description"
+                        :for="attr.name + '_' + option.value"
+                        >{{ option.description }}:
+                        <InputRadio
+                            :name="option.description"
+                            :id="attr.name + '_' + option.value"
+                            :value="option.value"
+                            :checked="
+                                (!Object.keys(resource).includes(attr.name) &&
+                                    attr.default == option.value) ||
+                                (Object.keys(resource).includes(attr.name) &&
+                                    option.value == resource[attr.name])
+                            "
+                            v-model="resource[attr.name]"
+                            @change="
+                                attr.onChange &&
+                                attr.onChange.bind(this, resource)
+                            "
+                        />
+                    </label>
+                </template>
+            </template>
+            <template v-else-if="attr.type == 'boolean'">
+                <label class="radio" :for="getElementId + '_yes'"
+                    >{{ $__("Yes") }}:
+                    <InputRadio
+                        type="radio"
+                        :name="attr.name"
+                        :id="attr.name + '_yes'"
+                        :value="true"
+                        :checked="resource[attr.name] == true"
+                        v-model="resource[attr.name]"
+                    />
+                </label>
+                <label class="radio" :for="getElementId + '_no'"
+                    >{{ $__("No") }}:
+                    <InputRadio
+                        type="radio"
+                        :name="attr.name"
+                        :id="attr.name + '_no'"
+                        :checked="resource[attr.name] == false"
+                        :value="false"
+                        v-model="resource[attr.name]"
+                    />
+                </label>
+            </template>
+            <template v-else-if="attr.type == 'select'">
+                <v-select
+                    :id="getElementId"
+                    v-model="resource[attr.name]"
+                    :label="attr.selectLabel"
+                    :reduce="av => selectRequiredKey(av)"
+                    :options="selectOptions"
+                    :required="!resource[attr.name] && attr.required"
+                    :disabled="disabled"
+                    :multiple="attr.allowMultipleChoices"
+                    @option:selected="
+                        attr.onSelected && attr.onSelected(resource)
+                    "
+                >
+                    <template
+                        v-if="attr.required"
+                        #search="{ attributes, events }"
+                    >
+                        <input
+                            :required="!resource[attr.name]"
+                            class="vs__search"
+                            v-bind="attributes"
+                            v-on="events"
+                        />
+                    </template>
+                </v-select>
+            </template>
+            <template v-else-if="attr.type == 'vendor'">
+                <component
+                    :is="requiredComponent"
+                    :id="getElementId"
+                    v-bind="getComponentProps()"
+                    v-on="getEventHandlers()"
+                    v-model="resource[attr.name]"
+                ></component>
+            </template>
+            <template v-else-if="attr.type == 'date'">
+                <component
+                    :is="requiredComponent"
+                    :id="getElementId"
+                    v-bind="getComponentProps()"
+                    v-on="getEventHandlers()"
+                    v-model="resource[attr.name]"
+                ></component>
+            </template>
+            <template
+                v-else-if="attr.type == 'component' && attr.componentPath"
+            >
+                <component
+                    v-if="isVModelRequired(attr.componentPath)"
+                    :is="requiredComponent"
+                    v-bind="getComponentProps()"
+                    v-model="resource[attr.name]"
+                    v-on="getEventHandlers()"
+                ></component>
+                <component
+                    v-else
+                    :is="requiredComponent"
+                    v-bind="getComponentProps()"
+                    v-on="getEventHandlers()"
+                ></component>
+            </template>
+            <template
+                v-else-if="
+                    attr.type == 'relationshipWidget' && attr.componentProps
+                "
+            >
+                <component
+                    :is="requiredComponent"
+                    :title="attr.group ? null : attr.label"
+                    :apiClient="attr.apiClient"
+                    :name="attr.name"
+                    v-bind="getComponentProps()"
+                    v-on="getEventHandlers()"
+                ></component>
+            </template>
+            <template v-else-if="attr.type == 'relationshipSelect'">
+                <FormRelationshipSelect
+                    v-bind="attr"
+                    :resource="resource"
+                ></FormRelationshipSelect>
+            </template>
+            <template v-else-if="attr.type == 'additional_fields'">
+                <AdditionalFieldsEntry
+                    :resource="resource"
+                    :additional_field_values="resource.extended_attributes"
+                    :extended_attributes_resource_type="
+                        attr.extended_attributes_resource_type
+                    "
+                    @additional-fields-changed="additionalFieldsChanged"
+                ></AdditionalFieldsEntry>
+            </template>
+            <template v-else>
+                <span>{{
+                    $__("Programming error: unknown type %s").format(attr.type)
+                }}</span>
+            </template>
+        </div>
+        <ToolTip v-if="attr.toolTip" :toolTip="attr.toolTip"></ToolTip>
+        <div v-if="attr.required" class="required">{{ $__("Required") }}</div>
+        <span style="margin-left: 5px" class="error" v-if="fieldInputError">
+            {{ attr.formErrorMessage }}
+        </span>
+    </div>
 </template>
 
 <script>
