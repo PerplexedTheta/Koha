@@ -127,8 +127,17 @@ function tagAdded() {
 }
 
 $(document).ready(function () {
-    $(".cb").click(function () {
-        enableCheckboxActions();
+    $('.cb').each((idx, element) => {
+        $(element).on('click', () => {
+            enableCheckboxActions();
+        });
+        $(element).on('keydown', event => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                $(element).trigger('click');
+                return false;
+            }
+        });
     });
     enableCheckboxActions();
 
