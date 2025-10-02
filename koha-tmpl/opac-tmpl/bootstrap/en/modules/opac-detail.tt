@@ -1878,6 +1878,7 @@
                 $(".close_pagination").on("click", function(e){
                     e.preventDefault();
                     $(".results-pagination, .close_pagination, .pg_menu").toggle();
+                    $("#a_listResults").focus();
                 });
             [% END # /IF OpacBrowseResults %]
 
