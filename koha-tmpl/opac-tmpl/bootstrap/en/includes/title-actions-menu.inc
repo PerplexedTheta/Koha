@@ -87,7 +87,7 @@
             >
         [% ELSE %]
             <span class="actions cart-actions"
-                ><a aria-label="Add [% items.title | html %] to the cart" data-biblionumber="[% items.biblionumber | html %]" class="btn btn-link btn-sm addtocart cart cart[% items.biblionumber | html %]" href="#"
+                ><a aria-label="Add [% items.title | html %] to cart" data-biblionumber="[% items.biblionumber | html %]" class="btn btn-link btn-sm addtocart cart cart[% items.biblionumber | html %]" href="#"
                     ><i class="fa fa-fw fa-shopping-cart" aria-hidden="true"></i> Add to cart</a
                 >
                 <a style="display:none;" data-biblionumber="[% items.biblionumber | html %]" class="btn btn-link btn-sm remove cartRemove cartR[% items.biblionumber | html %]" href="#">(remove)</a></span
