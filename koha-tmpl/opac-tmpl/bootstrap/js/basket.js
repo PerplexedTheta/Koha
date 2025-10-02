@@ -470,7 +470,8 @@ function updateLink(val, op, target) {
                         __("Add to cart")
                 )
                 .removeClass("incart")
-                .addClass("addtocart cart" + val);
+                .addClass("addtocart cart" + val)
+                .focus();
             target.$("a.cartR" + val).hide();
         }
     } else {
@@ -489,7 +490,8 @@ function updateLink(val, op, target) {
                         __("Add to cart")
                 )
                 .removeClass("incart")
-                .addClass("addtocart cart" + val);
+                .addClass("addtocart cart" + val)
+                .focus();
             $("a.cartR" + val).hide();
         }
     }
