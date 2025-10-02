@@ -57,7 +57,7 @@
                                 id="listsmenu"
                                 data-bs-toggle="dropdown"
                                 role="button"
-                                aria-label="Show dropdown with detailed list information"
+                                aria-label="Show dropdown with lists"
                                 aria-haspopup="true"
                                 aria-expanded="false"
                                 ><i class="fa fa-list fa-fw fa-icon-black" aria-hidden="true"></i> <span class="listslabel">Lists</span>
