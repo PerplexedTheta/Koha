@@ -41,7 +41,6 @@ use Koha::DateUtils qw( dt_from_string );
 my $input               = CGI->new;
 my $op                  = $input->param('op') || 'else';
 my $biblionumber        = $input->param('biblionumber');
-my $negcaptcha          = $input->param('negcap');
 my $suggested_by_anyone = $input->param('suggested_by_anyone') || 0;
 my $title_filter        = $input->param('title_filter');
 my $need_confirm        = 0;
@@ -61,12 +60,6 @@ my $suggestion = {
     patronreason    => scalar $input->param('patronreason'),
     note            => scalar $input->param('note'),
 };
-
-# If a spambot accidentally populates the 'negcap' field in the suggestions form, then silently skip and return.
-if ($negcaptcha) {
-    print $input->redirect("/cgi-bin/koha/opac-suggestions.pl");
-    exit;
-}
 
 my ( $template, $borrowernumber, $cookie, @messages );
 my $deleted   = $input->param('deleted');
