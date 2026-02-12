@@ -131,6 +131,12 @@ sub SendPasswordRecoveryEmail {
     my $opacbase = C4::Context->preference('OPACBaseURL') || '';
     my $uuidLink = $opacbase . "/cgi-bin/koha/opac-password-recovery.pl?uniqueKey=$uuid_str";
 
+    # create a sanitised borrower hash
+    my $user    = $borrower->unblessed;
+    my $library = $borrower->library;
+    $user->{branchname} = $library ? $library->branchname : '';
+    delete $user->{password};
+
     # prepare the email
     my $letter = C4::Letters::GetPreparedLetter(
         module      => 'members',
@@ -138,10 +144,11 @@ sub SendPasswordRecoveryEmail {
         branchcode  => $borrower->branchcode,
         lang        => $borrower->lang,
         substitute  => { passwordreseturl => $uuidLink, user => $borrower->userid },
+        tables      => { branches         => $borrower->branchcode },
+        objects     => { borrower         => $user },
     );
 
     # define from emails
-    my $library   = $borrower->library;
     my $kohaEmail = $library->from_email_address;    # send from patron's branch or Koha Admin
 
     my $message_id = C4::Letters::EnqueueLetter(

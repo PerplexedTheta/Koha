@@ -1548,14 +1548,18 @@ tables:
           message_transport_type: email
           lang: default
           content:
-            - "<p>This email has been sent in response to your password recovery request for the account <strong><<user>></strong>."
-            - "</p>"
+            - "<p>Dear [% borrower.firstname %] [% borrower.surname %]</p>"
+            - "<p>This email has been sent in response to your password recovery request for the account <strong>[% borrower.userid %]</strong>.</p>"
             - "<p>"
-            - "You can now create your new password using the following link:"
-            - "<br><a href=\"<<passwordreseturl>>\"><<passwordreseturl>></a>"
+            - "You can now create your new password using the following link:<br />"
+            - "<a href=\"[% passwordreseturl %]\">[% passwordreseturl %]</a>"
             - "</p>"
             - "<p>This link will be valid for 2 days from this email's reception, then you must reapply if you do not change your password.</p>"
             - "<p>Thank you.</p>"
+            - "<p>"
+            - "[% branch.branchname %]<br />"
+            - "[% branch.branchemail %]"
+            - "</p>"
 
         - module: members
           code: STAFF_PASSWORD_RESET
