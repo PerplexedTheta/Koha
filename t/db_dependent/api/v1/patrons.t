@@ -478,6 +478,7 @@ subtest 'add() tests' => sub {
 
         # delete RO attributes
         delete $newpatron->{patron_id};
+        delete $newpatron->{historic_cardnumbers};
         delete $newpatron->{restricted};
         delete $newpatron->{expired};
         delete $newpatron->{anonymized};
@@ -543,6 +544,7 @@ subtest 'add() tests' => sub {
 
         # delete RO attributes
         delete $newpatron->{patron_id};
+        delete $newpatron->{historic_cardnumbers};
         delete $newpatron->{restricted};
         delete $newpatron->{expired};
         delete $newpatron->{anonymized};
@@ -928,6 +930,7 @@ subtest 'update() tests' => sub {
 
         # delete RO attributes
         delete $newpatron->{patron_id};
+        delete $newpatron->{historic_cardnumbers};
         delete $newpatron->{restricted};
         delete $newpatron->{expired};
         delete $newpatron->{anonymized};
@@ -1007,7 +1010,9 @@ subtest 'update() tests' => sub {
             ->status_is( 200, 'Patron updated successfully' );
 
         # Put back the RO attributes
-        $newpatron->{patron_id}  = $unauthorized_patron->to_api( { user => $authorized_patron } )->{patron_id};
+        $newpatron->{patron_id} = $unauthorized_patron->to_api( { user => $authorized_patron } )->{patron_id};
+        $newpatron->{historic_cardnumbers} =
+            $unauthorized_patron->to_api( { user => $authorized_patron } )->{historic_cardnumbers};
         $newpatron->{restricted} = $unauthorized_patron->to_api( { user => $authorized_patron } )->{restricted};
         $newpatron->{expired}    = $unauthorized_patron->to_api( { user => $authorized_patron } )->{expired};
         $newpatron->{anonymized} = $unauthorized_patron->to_api( { user => $authorized_patron } )->{anonymized};
@@ -1043,6 +1048,7 @@ subtest 'update() tests' => sub {
 
         # delete RO attributes
         delete $newpatron->{patron_id};
+        delete $newpatron->{historic_cardnumbers};
         delete $newpatron->{restricted};
         delete $newpatron->{expired};
         delete $newpatron->{anonymized};
