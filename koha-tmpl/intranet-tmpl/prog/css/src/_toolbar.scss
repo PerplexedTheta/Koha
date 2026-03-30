@@ -4,8 +4,12 @@
     justify-content: flex-start;
     flex-wrap: wrap;
 
-    background-color: #f3F4F4;
+    background-color: $foreground-color;
     border: 0;
+    
+    @include color-scheme(dark) {
+        background-color: $foreground-color-dark;
+    }
 
     margin-bottom: 5px;
     padding: 5px;

@@ -116,8 +116,7 @@
         right: 60px;
         position: absolute;
         top: 31px;
-        background-color: #f3f4f4;
-        background-color: white;
+        background-color: $background-color;
         padding: 1em;
         border-radius: 0 0 8px 8px;
         border: 1px solid $background-color-primary;
@@ -125,6 +124,10 @@
         box-shadow: 0 2px 2px 1px #00000030;
         z-index: 1000;
         display: none;
+
+        @include color-scheme(dark) {
+            background-color: $background-color-dark;
+        }
 
         a {
             color: $green-text-color;
