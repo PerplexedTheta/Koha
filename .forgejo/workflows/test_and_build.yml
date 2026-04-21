@@ -1,0 +1,39 @@
+---
+name: test_and_build
+
+env:
+  KOHA_IMAGE: main-bookworm
+  DB_IMAGE: mariadb:10.11
+
+on:
+  push:
+
+jobs:
+  test:
+    runs-on:
+      - bare-metal
+      - arm64
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+             perl ${FORGEJO_WORKSPACE}/.forgejo/helpers/download_tools.pl
+      - run: |
+             perl ${JENKINS_HELPER_SCRIPTS}/koha_tests_runner.pl \
+                 --initial-docker-cleanup \
+                 --run-light-test-suite \
+                 --warmup-timeout 550 \
+                 --force-cleanup \
+                 --verbose
+        timeout-minutes: 180
+      - run: |
+             perl ${FORGEJO_WORKSPACE}/.forgejo/helpers/cleanup_tools.pl
+
+  build:
+    runs-on:
+      - bare-metal
+      - arm64
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+             printenv
+             git status
