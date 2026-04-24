@@ -41,5 +41,9 @@ jobs:
       - run: |
              perl ${KDD_HELPER_SCRIPTS}/build.pl
         timeout-minutes: 180
+      - uses: https://data.forgejo.org/forgejo/upload-artifact@v4
+        with:
+          name: artifacts
+          path: ${{ env.DEBS_OUT }}
       - run: |
              perl ${FORGEJO_WORKSPACE}/.forgejo/helpers/cleanup_build_tools.pl
