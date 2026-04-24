@@ -55,13 +55,13 @@ if ($help) {
 
 # Remove kdd-helper-scripts
 run_cmd(
-    qq{rm -rf $ENV{KDD_HELPER_SCRIPTS}},
+    qq{rm -rfv $ENV{KDD_HELPER_SCRIPTS}},
     { exit_on_error => 1 }
 );
 
 # Remove debs-out
 run_cmd(
-    qq{rm -rf $ENV{DEBS_OUT}},
+    qq{rm -rfv $ENV{DEBS_OUT}},
     { exit_on_error => 1 }
 );
 

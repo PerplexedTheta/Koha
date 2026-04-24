@@ -54,37 +54,29 @@ if ($help) {
     exit 0;
 }
 
-# Create temporary directory for jenkins-helper-script
-my $tmp_dir = tempdir( 'jenkins-helper-script-XXXXXX', TMPDIR => 1 );
-if ($verbose) {
-    print "Output directory: $tmp_dir\n";
+die('No package owner and/or release specified. Ensure FORGEJO_OWNER and KOHA_RELEASE are set.')
+    unless ( $ENV{FORGEJO_OWNER} && $ENV{KOHA_RELEASE} );
+
+my $token     = $ENV{KOHA_FORGEJO_TOKEN} || $ENV{FORGEJO_TOKEN};
+my $artifacts = 'koha-deb-pkgs';
+
+# Find all the deb files
+opendir my $deb_dir, "$ENV{FORGEJO_WORKSPACE}/$artifacts"
+    or die "Cannot opendir on $ENV{FORGEJO_WORKSPACE}/$artifacts: $!";
+my @debs = grep /.deb$/, readdir $deb_dir or die "Cannot readdir on $ENV{FORGEJO_WORKSPACE}/$artifacts: $!";
+
+# push each debfile to a repo
+for my $deb (@debs) {
+    run_cmd(
+        qq{
+            curl -o/dev/null -s -w "\%{http_code}\\n" \\
+                 --user git:$token \\
+                 --upload-file $ENV{FORGEJO_WORKSPACE}/$artifacts/$deb \\
+                 https://forgejo.ishukone.net/api/packages/$ENV{FORGEJO_OWNER}/debian/pool/koha/$ENV{KOHA_RELEASE}/upload
+        },
+        { exit_on_error => 1 }
+    );
 }
-
-# Clone down jenkins-helper-scripts
-chdir($tmp_dir) or die "Cannot chdir to $tmp_dir: $!";
-run_cmd(
-    qq{git clone --branch main --single-branch --depth 1 https://gitlab.com/koha-community/jenkins-helper-scripts.git .},
-    { exit_on_error => 1 }
-);
-
-# Export environment
-run_cmd(
-    qq{
-        export JENKINS_HELPER_SCRIPTS="$tmp_dir"
-        echo JENKINS_HELPER_SCRIPTS="$tmp_dir" >> $ENV{FORGEJO_ENV}
-    },
-    { exit_on_error => 1 }
-);
-run_cmd(
-    qq{
-        export SYNC_REPO="$ENV{FORGEJO_WORKSPACE}"
-        echo SYNC_REPO="$ENV{FORGEJO_WORKSPACE}" >> $ENV{FORGEJO_ENV}
-    },
-    { exit_on_error => 1 }
-);
-
-# Revert to original dir
-chdir( $ENV{FORGEJO_WORKSPACE} ) or die "Cannot chdir to $ENV{FORGEJO_WORKSPACE}: $!";
 
 sub run_cmd {
     my ( $cmd, $params ) = @_;

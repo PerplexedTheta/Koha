@@ -58,8 +58,7 @@ if ($help) {
 my $branch = $ENV{KDD_BRANCH} || $ENV{KDD_IMAGE} || $ENV{KOHA_RELEASE} || 'main';
 
 # Create temporary directory for kdd-helper-script
-my $original_dir = getcwd();
-my $tmp_dir      = tempdir( 'kdd-helper-script-XXXXXX', TMPDIR => 1 );
+my $tmp_dir = tempdir( 'kdd-helper-script-XXXXXX', TMPDIR => 1 );
 if ($verbose) {
     print "Output directory: $tmp_dir\n";
 }
@@ -88,7 +87,7 @@ run_cmd(
 );
 
 # Revert to original dir
-chdir($original_dir) or die "Cannot chdir to $original_dir: $!";
+chdir( $ENV{FORGEJO_WORKSPACE} ) or die "Cannot chdir to $ENV{FORGEJO_WORKSPACE}: $!";
 
 # Create temporary directory for debs-out
 my $debs_dir = tempdir( 'debs-out-XXXXXX', TMPDIR => 1 );

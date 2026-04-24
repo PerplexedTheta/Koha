@@ -1,17 +1,11 @@
 ---
-name: test_and_build
-
-env:
-  KOHA_RELEASE: canary
-  KOHA_IMAGE: main-bookworm
-  DB_IMAGE: mariadb:10.11
-  KDD_IMAGE: main
+name: Test all, build, and publish
 
 on:
   push:
 
 jobs:
-  test:
+  test_light_suite:
     runs-on:
       - bare-metal
       - arm64
@@ -26,11 +20,16 @@ jobs:
                  --warmup-timeout 550 \
                  --force-cleanup \
                  --verbose
+        env:
+          KOHA_IMAGE: main-bookworm
+          DB_IMAGE: mariadb:10.11
         timeout-minutes: 180
       - run: |
              perl ${FORGEJO_WORKSPACE}/.forgejo/helpers/cleanup_test_tools.pl
 
   build:
+    needs:
+      - test
     runs-on:
       - bare-metal
       - arm64
@@ -40,10 +39,31 @@ jobs:
              perl ${FORGEJO_WORKSPACE}/.forgejo/helpers/download_build_tools.pl
       - run: |
              perl ${KDD_HELPER_SCRIPTS}/build.pl
+        env:
+          KDD_IMAGE: main
         timeout-minutes: 180
       - uses: https://data.forgejo.org/forgejo/upload-artifact@v4
         with:
-          name: artifacts
-          path: ${{ env.DEBS_OUT }}
+          name: koha-deb-pkgs
+          path: |
+                ${{ env.DEBS_OUT }}/koha-debs-manifest.json
+                ${{ env.DEBS_OUT }}/*.deb
       - run: |
              perl ${FORGEJO_WORKSPACE}/.forgejo/helpers/cleanup_build_tools.pl
+
+  publish:
+    needs:
+      - build
+    runs-on:
+      - bare-metal
+      - arm64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: https://data.forgejo.org/forgejo/download-artifact@v4
+      - run: |
+             perl ${FORGEJO_WORKSPACE}/.forgejo/helpers/publish_artifacts.pl
+        env:
+          PUBLISH_ARTIFACTS: yes
+          KOHA_RELEASE: unstable
+          FORGEJO_OWNER: koha-canary
+          KOHA_FORGEJO_TOKEN: ${{ secrets.KOHA_FORGEJO_TOKEN }}

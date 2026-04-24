@@ -55,7 +55,7 @@ if ($help) {
 
 # Remove jenkins-helper-scripts
 run_cmd(
-    qq{rm -rf $ENV{JENKINS_HELPER_SCRIPTS}},
+    qq{rm -rfv $ENV{JENKINS_HELPER_SCRIPTS}},
     { exit_on_error => 1 }
 );
 
