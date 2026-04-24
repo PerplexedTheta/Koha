@@ -2,8 +2,10 @@
 name: test_and_build
 
 env:
+  KOHA_RELEASE: canary
   KOHA_IMAGE: main-bookworm
   DB_IMAGE: mariadb:10.11
+  KDD_IMAGE: main
 
 on:
   push:
@@ -16,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: |
-             perl ${FORGEJO_WORKSPACE}/.forgejo/helpers/download_tools.pl
+             perl ${FORGEJO_WORKSPACE}/.forgejo/helpers/download_test_tools.pl
       - run: |
              perl ${JENKINS_HELPER_SCRIPTS}/koha_tests_runner.pl \
                  --initial-docker-cleanup \
@@ -26,7 +28,7 @@ jobs:
                  --verbose
         timeout-minutes: 180
       - run: |
-             perl ${FORGEJO_WORKSPACE}/.forgejo/helpers/cleanup_tools.pl
+             perl ${FORGEJO_WORKSPACE}/.forgejo/helpers/cleanup_test_tools.pl
 
   build:
     runs-on:
@@ -35,5 +37,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: |
-             printenv
-             git status
+             perl ${FORGEJO_WORKSPACE}/.forgejo/helpers/download_build_tools.pl
+      - run: |
+             perl ${KDD_HELPER_SCRIPTS}/build.pl
+        timeout-minutes: 180
+      - run: |
+             perl ${FORGEJO_WORKSPACE}/.forgejo/helpers/cleanup_build_tools.pl
