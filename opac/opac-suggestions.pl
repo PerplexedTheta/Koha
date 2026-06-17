@@ -96,10 +96,11 @@ if (
         }
     );
 }
+my $patron = Koha::Patrons->find($borrowernumber) if defined $borrowernumber;
 
 # If suggestions are turned off, or this patron belongs to a category not allowed to make suggestions (suggestionPatronCategoryExceptions syspref) we redirect to 404 error. This will also redirect guest suggestions
 if ( defined $borrowernumber && !C4::Context->preference('AnonSuggestions') ) {
-    if ( ( !Koha::Patrons->find($borrowernumber)->category->can_make_suggestions ) ) {
+    if ( ( !$patron->category->can_make_suggestions ) ) {
         print $input->redirect("/cgi-bin/koha/errors/404.pl");
         exit;
     }
@@ -184,6 +185,8 @@ if ( $op eq "cud-add_confirm" ) {
         C4::Context->preference("MaxOpenSuggestions") )    #only check limit for signed in borrowers
     {
         push @messages, { type => 'error', code => 'too_many' };
+    } elsif ( $patron->category->effective_BlockExpiredPatronOpacActions_contains('suggestion') ) {
+        push @messages, { type => 'error', code => 'blocked_expired_patron_action' };
     } elsif ( $suggestions->count >= 1 ) {
 
         #some suggestion are answering the request, do not add
@@ -308,4 +311,3 @@ $template->param(
 );
 
 output_html_with_http_headers $input, $cookie, $template->output, undef, { force_no_caching => 1 };
-

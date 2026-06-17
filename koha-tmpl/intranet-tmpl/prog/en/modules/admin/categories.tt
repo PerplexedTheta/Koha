@@ -381,20 +381,28 @@
                                 [% END %]
                             </optgroup>
                             <optgroup label="Block specific actions">
+                                [% IF category and category.BlockExpiredPatronOpacActions_contains('renew') %]
+                                    <option value="renew" selected="selected"> Renewing an item </option>
+                                [% ELSE %]
+                                    <option value="renew"> Renewing an item </option>
+                                [% END %]
+
                                 [% IF category and category.BlockExpiredPatronOpacActions_contains('hold') %]
                                     <option value="hold" selected="selected"> Placing a hold on an item </option>
                                 [% ELSE %]
                                     <option value="hold"> Placing a hold on an item </option>
                                 [% END %]
+
                                 [% IF category and category.BlockExpiredPatronOpacActions_contains('ill_request') %]
                                     <option value="ill_request" selected="selected"> Placing an ILL request </option>
                                 [% ELSE %]
                                     <option value="ill_request"> Placing an ILL request </option>
                                 [% END %]
-                                [% IF category and category.BlockExpiredPatronOpacActions_contains('renew') %]
-                                    <option value="renew" selected="selected"> Renewing an item </option>
+
+                                [% IF category and category.BlockExpiredPatronOpacActions_contains('suggestion') %]
+                                    <option value="suggestion" selected="selected"> Placing a suggestion </option>
                                 [% ELSE %]
-                                    <option value="renew"> Renewing an item </option>
+                                    <option value="suggestion"> Placing a suggestion </option>
                                 [% END %]
                             </optgroup>
                         </select>

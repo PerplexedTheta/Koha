@@ -69,6 +69,9 @@
                                 >You have reached your limit for suggestions you can place at this time ([% Koha.Preference('MaxOpenSuggestions') | html %]). Once the library has processed those suggestions you will be able to place
                                 more.</p
                             >
+                        [% ELSIF ( logged_in_user.is_expired && logged_in_user.category.effective_BlockExpiredPatronOpacActions_contains('suggestion') ) %]
+                            <p class="BlockedExpiredPatronActionText">Your card has expired, so you are unable to place purchase suggestions until it has been renewed.</p>
+                            <p>Please contact the library if you wish to renew your account.</p>
                         [% ELSE %]
 
                             [% IF ( opacsuggestion ) %]
@@ -345,6 +348,11 @@
                                         >The suggestion has not been added. You have reached your limit for suggestions you can place at this time ([% Koha.Preference('MaxOpenSuggestions') | html %]). Once the library has processed those
                                         suggestions you will be able to place more.</span
                                     >
+                                [% CASE 'blocked_expired_patron_action' %]
+                                    <span>
+                                        Your card has expired, so you are unable to place purchase suggestions until it has been renewed.<br />
+                                        Please contact the library if you wish to renew your account.
+                                    </span>
                                 [% CASE 'already_exists' %]
                                     <span>The suggestion has not been added. A suggestion with this title already exists.</span>
                                 [% CASE 'success_on_inserted' %]
@@ -399,6 +407,9 @@
                                         [% ELSIF ( Koha.Preference('MaxOpenSuggestions') != '' && patrons_pending_suggestions_count >= Koha.Preference('MaxOpenSuggestions') ) %]
                                             <p class="TooManySuggestionsText">You have reached your limit for suggestions you can place at this time ([% Koha.Preference('MaxOpenSuggestions') | html %]).</p>
                                             <p>Once the library has processed those suggestions you will be able to place more.</p>
+                                        [% ELSIF ( logged_in_user.is_expired && logged_in_user.category.effective_BlockExpiredPatronOpacActions_contains('suggestion') ) %]
+                                            <p class="BlockedExpiredPatronActionText">Your card has expired, so you are unable to place purchase suggestions until it has been renewed.</p>
+                                            <p>Please contact the library if you wish to renew your account.</p>
                                         [% ELSE %]
                                             <a class="btn btn-link new" href="/cgi-bin/koha/opac-suggestions.pl?op=add_form"><i class="fa fa-plus" aria-hidden="true"></i> New purchase suggestion</a>
                                         [% END %]
@@ -551,6 +562,9 @@
                                 [% ELSIF ( Koha.Preference('MaxOpenSuggestions') != ''  && patrons_pending_suggestions_count >= Koha.Preference('MaxOpenSuggestions') ) %]
                                     <p class="TooManySuggestionsText">You have reached your limit for suggestions you can place at this time.</p>
                                     <p>Once the library has processed those suggestions you will be able to place more.</p>
+                                [% ELSIF ( logged_in_user.is_expired && logged_in_user.category.effective_BlockExpiredPatronOpacActions_contains('suggestion') ) %]
+                                    <p class="BlockedExpiredPatronActionText">Your card has expired, so you are unable to place purchase suggestions until it has been renewed.</p>
+                                    <p>Please contact the library if you wish to renew your account.</p>
                                 [% ELSE %]
                                     <p
                                         ><a class="btn btn-link new" href="/cgi-bin/koha/opac-suggestions.pl?op=add_form"><i class="fa fa-plus" aria-hidden="true"></i> New purchase suggestion</a></p

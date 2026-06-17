@@ -128,9 +128,10 @@ $(document).ready(function () {
                 view.value == "follow_syspref_BlockExpiredPatronOpacActions" &&
                 view.selected
             ) {
-                blocked_actions_select.multipleSelect("uncheck", "hold");
                 blocked_actions_select.multipleSelect("uncheck", "renew");
+                blocked_actions_select.multipleSelect("uncheck", "hold");
                 blocked_actions_select.multipleSelect("uncheck", "ill_request");
+                blocked_actions_select.multipleSelect("uncheck", "suggestion");
             } else if (
                 view.value != "follow_syspref_BlockExpiredPatronOpacActions" &&
                 view.selected
